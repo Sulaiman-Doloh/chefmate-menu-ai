@@ -41,8 +41,8 @@ const Login = () => {
       }
     } else {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "เเจ้งเตือน",
+        description: "กรุณากรอกข้อมูลให้ครบ",
         variant: "destructive",
       });
     }
@@ -57,18 +57,14 @@ const Login = () => {
             <ChefHat className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">ChefMate</h1>
-          <p className="text-muted-foreground">Restaurant Management & AI Analytics</p>
         </div>
 
         <Card className="shadow-elegant">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
-              Choose your role and sign in to continue
-            </CardDescription>
+            <CardTitle className="text-2xl text-center">เข้าสู่ระบบ</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={userType} onValueChange={setUserType} className="mb-6">
+            {/* <Tabs value={userType} onValueChange={setUserType} className="mb-6">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="customer" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
@@ -83,17 +79,17 @@ const Login = () => {
                   Admin
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
+            </Tabs> */}
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">เบอร์โทรศัพท์</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="phone"
                     type="tel"
-                    placeholder="Enter your phone number"
+                    placeholder="กรอกเบอร์โทรศัพท์ของคุณ"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="pl-10"
@@ -102,13 +98,13 @@ const Login = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">รหัสผ่าน</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Enter your password"
+                    placeholder="กรอกรหัสผ่านของคุณ"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
@@ -117,22 +113,23 @@ const Login = () => {
               </div>
 
               <Button type="submit" className="w-full">
-                Sign In to {userType.charAt(0).toUpperCase() + userType.slice(1)} Dashboard
+                ยืนยัน
+                {/* Sign In to {userType.charAt(0).toUpperCase() + userType.slice(1)} */}
               </Button>
             </form>
 
             <div className="mt-6 text-center space-y-2">
               <Button variant="link" className="text-sm">
-                Forgot Password?
+                ลืมรหัสผ่าน?
               </Button>
               <div className="text-sm text-muted-foreground">
-                New customer?{' '}
+                ยังไม่มีบัญชีใช่ไหม?{' '}
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-primary"
                   onClick={() => navigate('/signup')}
                 >
-                  Create Account
+                  สร้างบัญชี
                 </Button>
               </div>
             </div>
@@ -140,13 +137,13 @@ const Login = () => {
         </Card>
 
         {/* Demo Credentials */}
-        <Card className="mt-4 bg-muted/50">
+        {/* <Card className="mt-4 bg-muted/50">
           <CardContent className="pt-4">
             <p className="text-xs text-muted-foreground text-center">
               Demo: Use any phone number and password to login
             </p>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

@@ -29,8 +29,8 @@ const Signup = () => {
     
     if (!formData.phone || !formData.password || !formData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "เเจ้งเตือน",
+        description: "กรุณากรอกข้อมูลให้ครบ",
         variant: "destructive",
       });
       return;
@@ -38,16 +38,16 @@ const Signup = () => {
 
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Error", 
-        description: "Passwords do not match",
+        title: "เเจ้งเตือน", 
+        description: "รหัสผ่านไม่ตรงกัน",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "OTP Sent!",
-      description: "Check your phone for the verification code",
+      title: "เเจ้งเตือน OTP!",
+      description: "ตรวจสอบรหัส OTP",
     });
     setStep(2);
   };
@@ -57,16 +57,16 @@ const Signup = () => {
     
     if (!formData.otp) {
       toast({
-        title: "Error",
-        description: "Please enter the OTP code",
+        title: "เเจ้งเตือน",
+        description: "กรอกรหัส OTP",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "Phone Verified!",
-      description: "Please complete your profile",
+      title: "เเจ้งเตือน!",
+      description: "กรุณากรอกข้อมูลให้ครบ",
     });
     setStep(3);
   };
@@ -76,16 +76,16 @@ const Signup = () => {
     
     if (!formData.name) {
       toast({
-        title: "Error",
-        description: "Please enter your name",
+        title: "เเจ้งเตือน!",
+        description: "กรุณากรอกชื่อของคุณ",
         variant: "destructive",
       });
       return;
     }
 
     toast({
-      title: "Account Created!",
-      description: "Welcome to ChefMate. You can now start ordering.",
+      title: "เเจ้งเตือน",
+      description: "ยินดีต้อนรับสู่ ChefMate คุณสามารถเริ่มสั่งซื้อได้แล้ว",
     });
     navigate('/customer');
   };
@@ -98,21 +98,21 @@ const Signup = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4 shadow-glow">
             <ChefHat className="w-8 h-8 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Join ChefMate</h1>
-          <p className="text-muted-foreground">Create your customer account</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">ChefMate</h1>
+          <p className="text-muted-foreground">สร้างบัญชีของคุณ</p>
         </div>
 
         <Card className="shadow-elegant">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">
-              {step === 1 && "Create Account"}
-              {step === 2 && "Verify Phone"}
-              {step === 3 && "Complete Profile"}
+              {step === 1 && "สร้างบัญชี"}
+              {step === 2 && "ยืนยันหมายเลขโทรศัพท์"}
+              {step === 3 && "สร้างบัญชีเรียบร้อย"}
             </CardTitle>
             <CardDescription className="text-center">
-              {step === 1 && "Enter your phone number and create a password"}
-              {step === 2 && "Enter the verification code sent to your phone"}
-              {step === 3 && "Tell us a bit about yourself"}
+              {step === 1 && "กรอกเบอร์โทรศัพท์และสร้างรหัสผ่าน"}
+              {step === 2 && "ป้อนรหัสยืนยันที่ส่งไปยังโทรศัพท์ของคุณ"}
+              {step === 3 && "ยินดีต้อนรับ"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -142,13 +142,13 @@ const Signup = () => {
             {step === 1 && (
               <form onSubmit={handleStep1Submit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">เบอร์โทรศัพท์</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="Enter your phone number"
+                      placeholder="กรอกเบอร์โทรศัพท์ของคุณ"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       className="pl-10"
@@ -158,13 +158,13 @@ const Signup = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">รหัสผ่าน</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Create a password"
+                      placeholder="สร้างรหัสผ่าน"
                       value={formData.password}
                       onChange={(e) => handleInputChange('password', e.target.value)}
                       className="pl-10"
@@ -174,13 +174,13 @@ const Signup = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">ยืนยันรหัสผ่าน</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="confirmPassword"
                       type="password"
-                      placeholder="Confirm your password"
+                      placeholder="ยืนยันรหัสผ่านของคุณ"
                       value={formData.confirmPassword}
                       onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                       className="pl-10"
@@ -190,7 +190,7 @@ const Signup = () => {
                 </div>
 
                 <Button type="submit" className="w-full">
-                  Send Verification Code
+                  ส่งรหัสยืนยัน
                 </Button>
               </form>
             )}
@@ -203,16 +203,16 @@ const Signup = () => {
                     <MessageSquare className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    We sent a verification code to {formData.phone}
+                    เราส่งรหัสยืนยันไปที่ {formData.phone}
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="otp">Verification Code</Label>
+                  <Label htmlFor="otp">รหัส OTP</Label>
                   <Input
                     id="otp"
                     type="text"
-                    placeholder="Enter 6-digit code"
+                    placeholder="กรอกรหัส OTP"
                     value={formData.otp}
                     onChange={(e) => handleInputChange('otp', e.target.value)}
                     className="text-center text-lg tracking-widest"
@@ -223,16 +223,16 @@ const Signup = () => {
 
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setStep(1)}>
-                    Back
+                    ย้อนกลับ
                   </Button>
                   <Button type="submit" className="flex-1">
-                    Verify Phone
+                    ยืนยันหมายเลขโทรศัพท์
                   </Button>
                 </div>
 
                 <div className="text-center">
                   <Button variant="link" className="text-sm">
-                    Didn't receive code? Resend
+                    ไม่ได้รับรหัส? ส่งอีกครั้ง
                   </Button>
                 </div>
               </form>
@@ -246,18 +246,18 @@ const Signup = () => {
                     <User className="w-8 h-8 text-accent-foreground" />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Almost done! Just a few more details
+                    เกือบเสร็จแล้ว! เหลือรายละเอียดอีกเล็กน้อย
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">ชื่อ-นามสกุล</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder="กรุณากรอกชื่อ-นามสกุลของคุณ"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       className="pl-10"
@@ -267,13 +267,13 @@ const Signup = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lineId">Line ID (Optional)</Label>
+                  <Label htmlFor="lineId">ไลน์ไอดี (ไม่บังคับ)</Label>
                   <div className="relative">
                     <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="lineId"
                       type="text"
-                      placeholder="Enter your Line ID"
+                      placeholder="กรอกไลน์ ID ของคุณ"
                       value={formData.lineId}
                       onChange={(e) => handleInputChange('lineId', e.target.value)}
                       className="pl-10"
@@ -283,10 +283,10 @@ const Signup = () => {
 
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setStep(2)}>
-                    Back
+                    ย้อนกลับ
                   </Button>
                   <Button type="submit" className="flex-1">
-                    Complete Signup
+                    ลงทะเบียนให้เสร็จสมบูรณ์
                   </Button>
                 </div>
               </form>
@@ -294,13 +294,13 @@ const Signup = () => {
 
             <div className="mt-6 text-center">
               <div className="text-sm text-muted-foreground">
-                Already have an account?{' '}
+                มีบัญชีอยู่แล้ว?{' '}
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-primary"
                   onClick={() => navigate('/login')}
                 >
-                  Sign In
+                  เข้าสู่ระบบ
                 </Button>
               </div>
             </div>
