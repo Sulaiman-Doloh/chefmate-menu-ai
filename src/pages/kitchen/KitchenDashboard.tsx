@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';  // 🔄 เพิ่ม useRef เพื่อเช็คออร์เดอร์ใหม่
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,80 +11,84 @@ import {
   Home,
   AlertCircle,
   Timer,
-  Users
+  Users,
+  Filter
 } from 'lucide-react';
 
+const API_URL = 'https://script.google.com/macros/s/AKfycbxpAJiAjwxCf9w4LMuYoJWL--FGDQ4LyNgCiw7JaNFwVcnHYqeF1vzreVXqZ6iOuf8G_g/exec';
+
+interface Order {
+  orderId: string;
+  tableNo: string;
+  menu: string;
+  status: string;
+  type: string;
+  timestamp: string;
+}
+
 const KitchenDashboard = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: "ORD-001",
-      customer: "John Smith",
-      items: ["Grilled Salmon", "Caesar Salad", "Lemon Cake"],
-      status: "new",
-      orderTime: "2:15 PM",
-      type: "dine-in"
-    },
-    {
-      id: "ORD-002", 
-      customer: "Sarah Johnson",
-      items: ["Truffle Pasta", "Garlic Bread"],
-      status: "in-progress",
-      orderTime: "2:10 PM",
-      type: "delivery"
-    },
-    {
-      id: "ORD-003",
-      customer: "Mike Wilson", 
-      items: ["Beef Burger", "French Fries", "Coke"],
-      status: "in-progress",
-      orderTime: "2:05 PM",
-      type: "pickup"
-    }
-  ]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filter, setFilter] = useState<string>('ทั้งหมด');
+  const prevOrderIds = useRef<string[]>([]);
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders(prev => prev.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
-  };
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      const filtered = data.filter((o: Order) => o.status === 'รอรับออร์เดอร์' || o.status === 'กำลังทำ');
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'new': return 'destructive';
-      case 'in-progress': return 'outline';
-      case 'ready': return 'default';
-      default: return 'secondary';
+      const newIds = filtered.map(o => o.orderId);
+      const isNewOrder = newIds.some(id => !prevOrderIds.current.includes(id));
+      if (isNewOrder) {
+        const audio = new Audio('/notify.mp3');
+        audio.play();
+      }
+      prevOrderIds.current = newIds;
+      setOrders(filtered);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
     }
   };
+
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    await fetch(API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, status: newStatus })
+    });
+    fetchOrders();
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'new': return AlertCircle;
-      case 'in-progress': return Timer;
-      case 'ready': return CheckCircle;
+      case 'รอรับออร์เดอร์': return AlertCircle;
+      case 'กำลังทำ': return Timer;
+      case 'พร้อมเสิร์ฟ':
+      case 'พร้อมจัดส่ง':
+      case 'พร้อมรับอาหาร': return CheckCircle;
       default: return Clock;
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'dine-in': return Home;
-      case 'delivery': return Truck;
-      case 'pickup': return Package;
+      case 'In-store': return Home;
+      case 'Delivery': return Truck;
+      case 'Takeaway': return Package;
       default: return Home;
     }
   };
 
-  const stats = {
-    totalOrders: orders.length,
-    newOrders: orders.filter(o => o.status === 'new').length,
-    inProgress: orders.filter(o => o.status === 'in-progress').length,
-    completed: orders.filter(o => o.status === 'ready').length
-  };
+  const filteredOrders = filter === 'ทั้งหมด' ? orders : orders.filter(o => o.status === filter);
 
   return (
     <div className="min-h-screen bg-gradient-warm">
-      {/* Header */}
       <header className="bg-background border-b border-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -97,182 +101,95 @@ const KitchenDashboard = () => {
                 <p className="text-xs text-muted-foreground">Real-time Order Management</p>
               </div>
             </div>
-            
             <div className="flex items-center gap-4">
               <Badge variant="outline" className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 Kitchen Staff
               </Badge>
+              <div className="flex items-center gap-1">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <select
+                  className="text-sm border rounded px-2 py-1 bg-white"
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                >
+                  <option value="ทั้งหมด">ทั้งหมด</option>
+                  <option value="รอรับออร์เดอร์">รอรับออร์เดอร์</option>
+                  <option value="กำลังทำ">กำลังทำ</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-                  <p className="text-2xl font-bold text-foreground">{stats.totalOrders}</p>
-                </div>
-                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">New Orders</p>
-                  <p className="text-2xl font-bold text-destructive">{stats.newOrders}</p>
-                </div>
-                <div className="w-8 h-8 bg-destructive/10 rounded-full flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-destructive" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">In Progress</p>
-                  <p className="text-2xl font-bold text-warning">{stats.inProgress}</p>
-                </div>
-                <div className="w-8 h-8 bg-warning/10 rounded-full flex items-center justify-center">
-                  <Timer className="w-4 h-4 text-warning" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="animate-fade-in">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                  <p className="text-2xl font-bold text-accent">{stats.completed}</p>
-                </div>
-                <div className="w-8 h-8 bg-accent/10 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-accent" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Orders List */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">Active Orders</h2>
-          
-          {orders.map((order, index) => {
+
+          {filteredOrders.map((order, index) => {
             const StatusIcon = getStatusIcon(order.status);
             const TypeIcon = getTypeIcon(order.type);
-            
+
             return (
-              <Card key={order.id} className="hover:shadow-card transition-all duration-300 animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
+              <Card
+                key={order.orderId}
+                className="hover:shadow-card transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
                         <StatusIcon className="w-5 h-5 text-muted-foreground" />
-                        <CardTitle className="text-lg">{order.id}</CardTitle>
+                        <CardTitle className="text-lg">Order #{order.orderId}</CardTitle>
                       </div>
-                      <Badge variant={getStatusColor(order.status)}>
-                        {order.status.replace('-', ' ')}
-                      </Badge>
+                      <Badge variant="outline">{order.status}</Badge>
                     </div>
-                    
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <TypeIcon className="w-4 h-4" />
                       <span>{order.type}</span>
                       <Clock className="w-4 h-4 ml-2" />
-                      <span>{order.orderTime}</span>
+                      <span>{new Date(order.timestamp).toLocaleTimeString()}</span>
                     </div>
                   </div>
-                  <CardDescription>Customer: {order.customer}</CardDescription>
+                  <CardDescription>โต๊ะ: {order.tableNo} | เมนู: {order.menu}</CardDescription>
                 </CardHeader>
-                
+
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">Order Items:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {order.items.map((item, idx) => (
-                          <Badge key={idx} variant="outline">
-                            {item}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      {order.status === 'new' && (
-                        <Button 
-                          variant="default"
-                          onClick={() => updateOrderStatus(order.id, 'in-progress')}
-                        >
-                          Accept Order
-                        </Button>
-                      )}
-                      
-                      {order.status === 'in-progress' && (
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="success"
-                            onClick={() => updateOrderStatus(order.id, 'ready')}
-                          >
-                            Mark as Ready
-                          </Button>
-                        </div>
-                      )}
-                      
-                      {order.status === 'ready' && (
-                        <div className="flex gap-2">
-                          {order.type === 'dine-in' && (
-                            <Button variant="elegant">
-                              <Home className="w-4 h-4 mr-2" />
-                              Ready to Serve
-                            </Button>
-                          )}
-                          {order.type === 'delivery' && (
-                            <Button variant="elegant">
-                              <Truck className="w-4 h-4 mr-2" />
-                              Ready for Delivery
-                            </Button>
-                          )}
-                          {order.type === 'pickup' && (
-                            <Button variant="elegant">
-                              <Package className="w-4 h-4 mr-2" />
-                              Ready for Pickup
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex gap-2">
+                    {order.status === 'รอรับออร์เดอร์' && (
+                      <Button onClick={() => updateOrderStatus(order.orderId, 'กำลังทำ')}>
+                        รับออร์เดอร์
+                      </Button>
+                    )}
+                    {order.status === 'กำลังทำ' && (
+                      <Button onClick={() => {
+                        let finalStatus = 'เสร็จสิ้น';
+                        if (order.type === 'In-store') finalStatus = 'พร้อมเสิร์ฟ';
+                        else if (order.type === 'Delivery') finalStatus = 'พร้อมจัดส่ง';
+                        else if (order.type === 'Takeaway') finalStatus = 'พร้อมรับอาหาร';
+                        updateOrderStatus(order.orderId, finalStatus);
+                      }}>
+                        เสร็จสิ้น
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             );
           })}
-        </div>
 
-        {orders.length === 0 && (
-          <Card className="text-center py-12">
-            <CardContent>
-              <ChefHat className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Active Orders</h3>
-              <p className="text-muted-foreground">When new orders come in, they'll appear here.</p>
-            </CardContent>
-          </Card>
-        )}
+          {filteredOrders.length === 0 && (
+            <Card className="text-center py-12">
+              <CardContent>
+                <ChefHat className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Active Orders</h3>
+                <p className="text-muted-foreground">When new orders come in, they'll appear here.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </main>
     </div>
   );
